@@ -27,7 +27,6 @@ Puma::Plugin.create do
 
     clustered = launcher.send(:clustered?) # See https://github.com/puma/puma/blob/master/lib/puma/launcher.rb#L285
 
-    dogstatsd_client.event("PumaPluginDogstastd enabled", "Cluster mode: #{clustered}")
     launcher.events.debug "PumaPluginDatadogStastd - enabled. Cluster mode: #{clustered}"
 
     in_background do
@@ -40,7 +39,6 @@ Puma::Plugin.create do
           parsed_stats = JSON.parse(stats)
 
           dogstatsd_client.batch do |s|
-            s.increment('puma.stats.sent')
             s.count('puma.workers', parsed_stats.fetch('workers', 1))
             s.count('puma.booted_workers', parsed_stats.fetch('booted_workers', 1))
             s.count('puma.running', count_value_for_key(clustered, parsed_stats, 'running'))
